@@ -1,0 +1,83 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<script>
+canvas = document.createElement('canvas');
+context = canvas.getContext('2d');
+
+dude = {
+	height: 20,
+	width: 20,
+	position: {x: 0, y: 0},
+	rotation: 0,
+	velocity: {x: 0, y: 0},
+	acceleration: 0.5,
+	speed: 1,
+	speedLimit: 10,
+	draw: function () {
+		context.fillStyle = '#888888';
+		context.fillRect(
+			this.position.x,
+			this.position.y,
+			this.width,
+			this.height
+		);
+	}
+}
+
+keys = {
+	LEFT: 37,
+	UP: 38,
+	RIGHT: 39,
+	DOWN: 40,
+	pressed: [],
+	add: function (key) {
+		if (this.pressed.indexOf(key) == -1)
+			this.pressed.push(key)
+	},
+	remove: function (key) {
+		this.pressed = this.pressed.filter(function (k) {
+			return k != key;
+		});
+	},
+	dispatch: function () {
+		console.log(this.pressed)
+		for (var key in this.pressed) {
+			switch (this.pressed[key]) {
+				case this.LEFT:
+					dude.position.x -= 5;
+					break;
+				case this.RIGHT:
+					dude.position.x += 5;
+					break;
+				case this.UP:
+					dude.position.y -= 5;
+					break;
+				case this.DOWN:
+					dude.position.y += 5;
+					break;
+			}
+		}
+	}
+}
+
+
+function clear() {
+	context.clearRect(0, 0, canvas.width, canvas.height)
+}
+
+function tick() {
+	clear()
+	keys.dispatch()
+	dude.draw()
+}
+
+document.body.appendChild(canvas);
+document.addEventListener('keydown', function (e) { keys.add(e.which) });
+document.addEventListener('keyup', function (e) { keys.remove(e.which) });
+setInterval(tick, 30)
+</script>
+</body>
+</html>

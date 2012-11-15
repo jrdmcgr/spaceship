@@ -10,21 +10,75 @@ context = canvas.getContext('2d');
 dude = {
 	height: 20,
 	width: 20,
-	position: {x: 0, y: 0},
+	position: {x: 50, y: 50},
 	rotation: 0,
 	velocity: {x: 0, y: 0},
 	acceleration: 0.5,
-	speed: 1,
+	speed: 3,
 	speedLimit: 10,
 	draw: function () {
 		context.fillStyle = '#888888';
-		context.fillRect(
-			this.position.x,
-			this.position.y,
-			this.width,
-			this.height
-		);
-	}
+		context.save();
+		oldx = this.position.x
+		oldy = this.position.y
+		centerx = this.position.x + (this.width / 2);
+		centery = this.position.y + (this.height / 2);
+		this.position.x -= centerx;
+		this.position.y -= centery;
+		context.translate(centerx, centery);
+		context.rotate(this.rotation * Math.PI / 180);
+		
+		// context.fillRect(
+		// 	this.position.x,
+		// 	this.position.y,
+		// 	this.width,
+		// 	this.height
+		// );
+
+		// Draw a triangle.
+		context.beginPath();
+		context.moveTo(this.position.x + (this.width / 2), this.position.y);
+		context.lineTo(this.position.x, this.position.y + this.height);
+		context.lineTo(this.position.x + this.width, this.position.y + this.height);
+		context.lineTo(this.position.x + (this.width / 2), this.position.y);
+		context.fill();
+		context.closePath();
+		
+		context.restore();
+		this.position.x = oldx;
+		this.position.y = oldy;
+	},
+	forward: function() {
+		someAngle = this.rotation > 0 ? 90 - this.rotation : 0;
+		this.velocity.x = this.speed * Math.sin(someAngle);
+		this.velocity.y = this.speed * Math.cos(someAngle);
+
+		console.log('Velocity:', this.velocity.x, this.velocity.y)
+
+		// On the canvas, traditional quadrants are flipped along the x axis.
+		// Towards quadrant I.
+		if (this.rotation >= 0 && this.rotation <= 89) {
+			this.position.x += this.velocity.x
+			this.position.y -= this.velocity.y
+		
+		// Towards quadrant IV.
+		} else if (this.rotation >= 90 && this.rotation <= 180) {
+			this.position.x += this.velocity.y
+			this.position.y -= this.velocity.x
+		
+		// Towards quadrant III.
+		} else if (this.rotation >= 180 && this.rotation <= 270) {
+			this.position.x -= this.velocity.x
+			this.position.y += this.velocity.y
+		
+		// Towards quadrant II.
+		} else if (this.rotation >= 271 && this.rotation <= 359) {
+			this.position.x -= this.velocity.x
+			this.position.y -= this.velocity.y
+		}
+
+	},
+
 }
 
 keys = {
@@ -35,7 +89,7 @@ keys = {
 	pressed: [],
 	add: function (key) {
 		if (this.pressed.indexOf(key) == -1)
-			this.pressed.push(key)
+			this.pressed.push(key);
 	},
 	remove: function (key) {
 		this.pressed = this.pressed.filter(function (k) {
@@ -43,20 +97,23 @@ keys = {
 		});
 	},
 	dispatch: function () {
-		console.log(this.pressed)
 		for (var key in this.pressed) {
 			switch (this.pressed[key]) {
 				case this.LEFT:
-					dude.position.x -= 5;
+					dude.rotation -= 5;
+					if (dude.rotation < 0)
+						dude.rotation = 360 - 5;
 					break;
 				case this.RIGHT:
-					dude.position.x += 5;
+					dude.rotation += 5;
+					if (dude.rotation === 360)
+						dude.rotation = 0;
 					break;
 				case this.UP:
-					dude.position.y -= 5;
+					dude.forward();
 					break;
 				case this.DOWN:
-					dude.position.y += 5;
+					dude.backward();
 					break;
 			}
 		}
@@ -65,19 +122,19 @@ keys = {
 
 
 function clear() {
-	context.clearRect(0, 0, canvas.width, canvas.height)
+	context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function tick() {
-	clear()
-	keys.dispatch()
-	dude.draw()
+	clear();
+	keys.dispatch();
+	dude.draw();
 }
 
 document.body.appendChild(canvas);
 document.addEventListener('keydown', function (e) { keys.add(e.which) });
 document.addEventListener('keyup', function (e) { keys.remove(e.which) });
-setInterval(tick, 30)
+setInterval(tick, 30);
 </script>
 </body>
 </html>

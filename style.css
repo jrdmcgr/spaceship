@@ -1,0 +1,27 @@
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+
+canvas {
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	left: 0;
+	top: 0;
+}
+
+#HUD {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 100;
+	color: white;
+	padding: 10px;
+	font-family: monospace;
+}
+
+#spaceship {
+	display: none;
+}
